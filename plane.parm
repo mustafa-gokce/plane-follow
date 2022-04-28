@@ -79,5 +79,8 @@ INS_ACC2SCAL_X   1.001
 INS_ACC2SCAL_Y   1.001
 INS_ACC2SCAL_Z   1.001
 INS_GYR_CAL      0
-# enable scripting
-SCR_ENABLE  1
+# parameters related with plane follow
+SCR_ENABLE       1
+FOLL_ENABLE      1
+FOLL_OFS_TYPE    1
+FOLL_ALT_TYPE    0
