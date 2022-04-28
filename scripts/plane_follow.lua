@@ -1,4 +1,12 @@
+-- main settings
 local LOOP_UPDATE_RATE_HZ = 20 -- main loop update interval
+
+-- global variable declarations
+local target_pos = Location()
+local current_pos = Location()
+local target_velocity = Vector3f()
+local target_heading = 0.0
+local have_target = false
 
 -- bind a parameter to a variable
 function bind_param(name)
@@ -34,9 +42,27 @@ function check_parameters()
     end
 end
 
+-- update target state
+function update_target()
+   if not follow:have_target() then
+      if have_target then
+         gcs:send_text(0,"lost leader")
+      end
+      have_target = false
+      return
+   end
+   if not have_target then
+      gcs:send_text(0,"found leader")
+   end
+   have_target = true
+
+   target_pos, target_velocity = follow:get_target_location_and_velocity_ofs()
+   target_heading = follow:get_target_heading_deg()
+end
+
 -- main function that will be called within loop
 function update()
-    gcs:send_text(0, "iteration")
+    update_target() -- update target data
 end
 
 -- loop function to call main update function
