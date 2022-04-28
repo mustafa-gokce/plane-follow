@@ -8,6 +8,9 @@ screen -S firmware_leader -d -m bash -c "./arduplane -w -S -I1 --model plane --s
 screen -S proxy_follower -d -m bash -c "mavproxy.py --aircraft follower --master tcp:127.0.0.1:5760 --out udp:127.0.0.1:10010 --out udp:127.0.0.1:10020 --out udp:127.0.0.1:10030 --daemon"
 screen -S proxy_leader -d -m bash -c "mavproxy.py --aircraft leader --master tcp:127.0.0.1:5770 --out udp:127.0.0.1:20010 --out udp:127.0.0.1:20020 --out udp:127.0.0.1:20030 --daemon"
 
+# run relay
+screen -S telemetry_relay -d -m bash -c "/usr/bin/python3 plane_follow_relay.py"
+
 # deploy leader
 mkdir -p logs
 cd logs || exit

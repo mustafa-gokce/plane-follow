@@ -64,21 +64,22 @@ end
 function update()
     update_target() -- update target data
     if not have_target then
-        return
+        return -- do not proceed if vehicle does not have a target yet
     end
 
     current_pos = ahrs:get_position() -- update current position
     if not current_pos then
-        return
+        return -- do not proceed if vehicle does not have position yet
     end
-    current_pos:change_alt_frame(0)
+
+    current_pos:change_alt_frame(0) -- change altitude frame of the current position to absolute
 
     local next_WP = vehicle:get_target_location() -- get current target location of vehicle
     if not next_WP then
         return -- do not proceed if vehicle is not in a flight mode with target location
     end
 
-    vehicle:update_target_location(next_WP, target_pos)
+    vehicle:update_target_location(next_WP, target_pos) -- update target location of the vehicle
 end
 
 -- loop function to call main update function

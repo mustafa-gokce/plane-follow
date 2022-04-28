@@ -1,12 +1,13 @@
 import pymavlink.mavutil as utility
 import pymavlink.dialects.v20.all as dialect
 
-# connect to vehicle
+# connect to leader
 vehicle_leader = utility.mavlink_connection(device="udpin:127.0.0.1:20030")
-vehicle_follower = utility.mavlink_connection(device="udpin:127.0.0.1:10030")
-
-# wait for a heartbeat
 vehicle_leader.wait_heartbeat()
+
+# connect to follower
+vehicle_follower = utility.mavlink_connection(device="udpin:127.0.0.1:10030",
+                                              source_system=vehicle_leader.target_system)
 vehicle_follower.wait_heartbeat()
 
 # inform user
