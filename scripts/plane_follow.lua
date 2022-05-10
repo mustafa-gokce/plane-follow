@@ -3,6 +3,7 @@ local LOOP_UPDATE_RATE_HZ = 20 -- main loop update interval
 
 -- global variable declarations
 local target_pos = Location()
+local reference_pos = Location()
 local current_pos = Location()
 local target_velocity = Vector3f()
 local target_heading = 0.0
@@ -65,17 +66,13 @@ function update() -- main function that will be called within loop
     if not current_pos then
         return -- do not proceed if vehicle does not have position yet
     end
-
     current_pos:change_alt_frame(0) -- change altitude frame of the current position to absolute
 
-    local next_WP = vehicle:get_target_location() -- get current target location of vehicle
-    if not next_WP then
-        return -- do not proceed if vehicle is not in a flight mode with target location
-    end
+    reference_pos = target_pos:copy() -- copy target position to reference position
+    reference_pos:offset_bearing(target_heading + 180, 1000) -- calculate reference position
+    reference_pos:change_alt_frame(0) -- change altitude frame of the reference position to absolute
 
-    next_WP:change_alt_frame(0) -- change altitude frame of the next position to absolute
-
-    vehicle:update_target_location(next_WP, target_pos) -- update target location of the vehicle
+    vehicle:update_target_location(reference_pos, target_pos) -- update target location of the vehicle
 end
 
 function loop() -- loop function to call main update function
