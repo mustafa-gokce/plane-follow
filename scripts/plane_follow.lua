@@ -8,6 +8,7 @@ local current_pos = Location()
 local target_velocity = Vector3f()
 local target_heading = 0.0
 local have_target = false
+local ENUM_MODE_GUIDED = 15
 
 function bind_param(name) -- bind a parameter to a variable
     local p = Parameter()
@@ -57,16 +58,19 @@ function update_target() -- update target state
 end
 
 function update() -- main function that will be called within loop
-    update_target() -- update target data
-    if not have_target then
-        return -- do not proceed if vehicle does not have a target yet
-    end
-
     current_pos = ahrs:get_position() -- update current position
     if not current_pos then
         return -- do not proceed if vehicle does not have position yet
     end
-    current_pos:change_alt_frame(0) -- change altitude frame of the current position to absolute
+
+    if not (vehicle:get_mode() == ENUM_MODE_GUIDED) then
+        return -- do not proceed if vehicle is not in GUIDED mode
+    end
+
+    update_target() -- update target data
+    if not have_target then
+        return -- do not proceed if vehicle does not have a target yet
+    end
 
     reference_pos = target_pos:copy() -- copy target position to reference position
     reference_pos:offset_bearing(target_heading + 180, 1000) -- calculate reference position
@@ -76,7 +80,7 @@ function update() -- main function that will be called within loop
 end
 
 function loop() -- loop function to call main update function
-    update()
+    update() -- call update function
     return loop, 1000 // LOOP_UPDATE_RATE_HZ
 end
 
