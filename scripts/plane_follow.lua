@@ -10,17 +10,6 @@ local target_heading = 0.0
 local have_target = false
 local ENUM_MODE_GUIDED = 15
 
-function bind_param(name) -- bind a parameter to a variable
-    local p = Parameter()
-    assert(p:init(name), string.format("could not find %s parameter", name))
-    return p
-end
-
-function bind_add_param(name, idx, default_value) -- add a parameter and bind it to a variable
-    assert(param:add_param(PARAM_TABLE_KEY, idx, name, default_value), string.format("could not add param %s", name))
-    return bind_param(PARAM_TABLE_PREFIX .. name)
-end
-
 function check_parameters() -- check key parameters
 
     local key_params = {
