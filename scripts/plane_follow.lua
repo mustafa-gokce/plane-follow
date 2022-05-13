@@ -10,7 +10,7 @@ local vehicle_reference_position = Location()
 local vehicle_current_position = Location()
 local vehicle_setpoint_airspeed = 0.0
 local vehicle_current_airspeed = 0.0
-local vehicle_target_airspeed = 0.0
+local vehicle_target_airspeed = 20.0
 
 -- global enumerations and definitions
 local ENUM_MODE_GUIDED = 15
@@ -52,17 +52,24 @@ function update_target() -- update target state
 end
 
 function update() -- main function that will be called within loop
+    if not (vehicle:get_mode() == ENUM_MODE_GUIDED) then
+        return -- do not proceed if vehicle is not in GUIDED mode
+    end
+
     vehicle_current_position = ahrs:get_position() -- update current position
     if not vehicle_current_position then
         return -- do not proceed if vehicle does not have position yet
     end
 
-    if not (vehicle:get_mode() == ENUM_MODE_GUIDED) then
-        return -- do not proceed if vehicle is not in GUIDED mode
+    vehicle_current_airspeed = ahrs:airspeed_estimate() -- get current airspeed of the vehicle
+    if not vehicle_current_airspeed then
+        return -- do not proceed if vehicle does not have an acceptable current airspeed
     end
 
-    vehicle_current_airspeed = ahrs:airspeed_estimate() -- get current airspeed of the vehicle
     vehicle_setpoint_airspeed = vehicle:get_target_airspeed() -- get airspeed setpoint of the vehicle
+    if not vehicle_setpoint_airspeed then
+        return -- do not proceed if vehicle does not have an acceptable airspeed setpoint
+    end
 
     update_target() -- update target data
     if not follow_target_exist then
@@ -73,6 +80,7 @@ function update() -- main function that will be called within loop
     vehicle_reference_position:offset_bearing(follow_target_heading + 180, 1000) -- calculate reference position
     vehicle_reference_position:change_alt_frame(0) -- change altitude frame of the reference position to absolute
 
+    vehicle:update_target_airspeed(vehicle_target_airspeed) -- update target airspeed of the vehicle
     vehicle:update_target_location(vehicle_reference_position, follow_target_position) -- update target location of the vehicle
 end
 
