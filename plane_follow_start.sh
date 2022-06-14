@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# update binary permission
+sudo chmod +x arduplane
+
 # start firmware
 screen -S firmware_follower -d -m bash -c "./arduplane -w -S -I0 --model plane --speedup 1 --defaults plane.parm --sysid 1"
 screen -S firmware_leader -d -m bash -c "./arduplane -w -S -I1 --model plane --speedup 10 --defaults plane.parm --sysid 2"
