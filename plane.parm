@@ -84,7 +84,7 @@ SCR_ENABLE       1
 FOLL_ENABLE      1
 FOLL_OFS_TYPE    1
 FOLL_ALT_TYPE    0
-FOLL_SYSID       2
+FOLL_SYSID       0
 FOLL_OFS_X       -100
 FOLL_OFS_Y       0
 FOLL_OFS_Z       0

@@ -1,27 +1,30 @@
+import threading
 import pymavlink.mavutil as utility
 import pymavlink.dialects.v20.all as dialect
 
-# connect to leader
-vehicle_leader = utility.mavlink_connection(device="udpin:127.0.0.1:20030")
-vehicle_leader.wait_heartbeat()
+TOTAL_VEHICLE_COUNT = 5
+RELAY_PORT_START = 20000
 
-# connect to follower
-vehicle_follower = utility.mavlink_connection(device="udpin:127.0.0.1:10030",
-                                              source_system=vehicle_leader.target_system)
-vehicle_follower.wait_heartbeat()
+vehicles = []
+receive_telemetry_threads = []
 
-# inform user
-print("Connected to leader:", vehicle_leader.target_system, ", component:", vehicle_leader.target_component)
-print("Connected to follower:", vehicle_follower.target_system, ", component:", vehicle_follower.target_component)
 
-# do below always
-while True:
-    # catch position message
-    message_raw = vehicle_leader.recv_match(type=dialect.MAVLink_global_position_int_message.name,
-                                            blocking=True)
+def receive_telemetry(this, that):
+    while True:
+        message_raw = that.recv_match(type=dialect.MAVLink_global_position_int_message.name, blocking=True)
+        this.mav.send(message_raw)
+        # message_dict = message_raw.to_dict()
+        # print("Routed", message_dict["mavpackettype"], "message from", that.target_system, "to", this.target_system)
 
-    # relay the position message
-    vehicle_follower.mav.send(message_raw)
 
-    # convert the message to dictionary
-    message_dict = message_raw.to_dict()
+# connect to vehicles
+for i in range(1, TOTAL_VEHICLE_COUNT + 1):
+    vehicle = utility.mavlink_connection(device=f"udpin:127.0.0.1:{RELAY_PORT_START + i * 10}")
+    vehicle.wait_heartbeat()
+    print("Connected to vehicle:", vehicle.target_system, ", component:", vehicle.target_component)
+    vehicles.append(vehicle)
+
+for vehicle in vehicles[1:]:
+    receive_telemetry_thread = threading.Thread(target=receive_telemetry, args=(vehicles[0], vehicle))
+    receive_telemetry_threads.append(receive_telemetry_thread)
+    receive_telemetry_threads[-1].start()
