@@ -14,17 +14,15 @@ receive_telemetry_threads = []
 # get position messages from other vehicles and send to the vehicle
 def receive_telemetry(vehicle):
     while True:
-        if vehicle.location.global_relative_frame.alt > 10:
-            break
         if vehicle.home_location is not None:
             if vehicle.mode != "TAKEOFF":
                 vehicle.mode = "TAKEOFF"
             if not vehicle.armed:
                 vehicle.armed = True
-            if vehicle.parameters["SIM_SPEEDUP"] > 1:
+            else:
                 vehicle.parameters["SIM_SPEEDUP"] = 1
-            if vehicle.parameters["SCR_ENABLE"] > 0:
                 vehicle.parameters["SCR_ENABLE"] = 0
+                break
         time.sleep(0.1)
 
 

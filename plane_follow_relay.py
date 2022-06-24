@@ -4,7 +4,7 @@ import pymavlink.dialects.v20.all as dialect
 
 # configurations
 TOTAL_VEHICLE_COUNT = 5
-RELAY_PORT_START = 20000
+RELAY_PORT_START = 10100
 
 # global variables
 vehicles = []
