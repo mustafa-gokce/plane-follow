@@ -31,5 +31,16 @@ screen -S plane_follow_relay -d -m bash -c "/usr/bin/python3 plane_follow_relay.
 # run deploy
 screen -S plane_follow_deploy -d -m bash -c "/usr/bin/python3 plane_follow_deploy.py"
 
+# wait for vehicles to be fully deployed
+until ! screen -list | grep -q "plane_follow_deploy"; do
+  sleep 1
+done
+
+# start rest servers
+cd "$HOME"/test-ucusu/mav-rest/ || exit 1
+for i in $(seq 1 $TOTAL_VEHICLE_COUNT); do
+  screen -S mav-rest-$((i)) -d -m bash -c "/usr/bin/python3 mav-rest.py --host=127.0.0.1 --port=$((8000 + i * 10)) --master=udpin:127.0.0.1:$((10000 + i * 10))"
+done
+
 # open MAVProxy
 screen -S plane_follow_mavproxy -d -m bash -c "$command"
